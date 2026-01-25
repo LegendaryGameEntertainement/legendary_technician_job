@@ -8,7 +8,6 @@ function ENT:Initialize()
     self:PhysicsInit(SOLID_VPHYSICS)
     self:SetMoveType(MOVETYPE_VPHYSICS)
     self:SetSolid(SOLID_VPHYSICS)
-    self:SetUseType(SIMPLE_USE)
     
     local phys = self:GetPhysicsObject()
     if IsValid(phys) then
@@ -17,11 +16,25 @@ function ENT:Initialize()
 end
 
 function ENT:Use(activator, caller)
-    if IsValid(activator) and activator:IsPlayer() then
-        -- Tu peux ajouter ici la logique pour donner le sac au joueur
-        -- Exemple : activator:Give("weapon_trash_bag")
-        self:Remove()
+    if not IsValid(activator) or not activator:IsPlayer() then return end
+    
+    -- Si le joueur ne porte rien, il ramasse le sac
+    if not activator:IsPlayerHolding() then
+        activator:PickupObject(self)
+    -- Si le joueur porte déjà le sac, il le lâche
+    else
+        activator:DropObject()
     end
+end
+
+function ENT:OnPlayerPickup(ply)
+    -- Appelé quand le joueur ramasse l'entité
+    ply:SetNWEntity("CarryingTrashBag", self)
+end
+
+function ENT:OnPlayerDrop(ply)
+    -- Appelé quand le joueur lâche l'entité
+    ply:SetNWEntity("CarryingTrashBag", NULL)
 end
 
 function ENT:SpawnFunction(ply, tr, ClassName)
