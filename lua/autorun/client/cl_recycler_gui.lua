@@ -19,7 +19,7 @@ net.Receive("OpenRecyclerMinigame", function()
     local recycler = net.ReadEntity()
     if not IsValid(recycler) then return end
     
-    -- Créer le frame principal (plus large pour 5 poubelles)
+    -- Créer le frame principal
     local frame = vgui.Create("DFrame")
     frame:SetSize(950, 600)
     frame:Center()
@@ -27,41 +27,58 @@ net.Receive("OpenRecyclerMinigame", function()
     frame:MakePopup()
     frame:SetDraggable(false)
     
-    local score = 0
     local totalTrash = 10
     local currentTrash = 0
     local currentTrashPanel = nil
+    local score = 0
     
-    -- Zone de jeu
+    -- Zone de jeu SANS paint (on dessine le fond différemment)
     local gamePanel = vgui.Create("DPanel", frame)
     gamePanel:SetPos(10, 40)
-    gamePanel:SetSize(930, 400)
+    gamePanel:SetSize(930, 450)
     gamePanel.Paint = function(self, w, h)
-        draw.RoundedBox(0, 0, 0, w, h, Color(200, 200, 200))
+        -- Ne rien dessiner ici, on va dessiner le fond dans le frame
     end
     
-    -- Score display
-    local scoreLabel = vgui.Create("DLabel", frame)
-    scoreLabel:SetPos(10, 450)
-    scoreLabel:SetSize(930, 30)
-    scoreLabel:SetFont("DermaLarge")
-    scoreLabel:SetText("Score: 0 | Déchets: 0/" .. totalTrash)
-    scoreLabel:SetContentAlignment(5)
+    -- Surcharger le Paint du frame pour dessiner le fond DERRIÈRE tout
+    local oldFramePaint = frame.Paint
+    frame.Paint = function(self, w, h)
+        -- Dessiner le fond normal du frame
+        if oldFramePaint then
+            oldFramePaint(self, w, h)
+        end
+        
+        -- Dessiner le fond gris de la zone de jeu DERRIÈRE
+        draw.RoundedBox(0, 10, 40, 930, 450, Color(180, 180, 180))
+    end
+    
+    -- Compteur de déchets
+    local trashCounter = vgui.Create("DLabel", frame)
+    trashCounter:SetPos(10, 500)
+    trashCounter:SetSize(930, 30)
+    trashCounter:SetFont("DermaLarge")
+    trashCounter:SetText("Déchets: 0/" .. totalTrash)
+    trashCounter:SetContentAlignment(5)
     
     -- Instruction
     local instructionLabel = vgui.Create("DLabel", frame)
-    instructionLabel:SetPos(10, 480)
+    instructionLabel:SetPos(10, 530)
     instructionLabel:SetSize(930, 30)
     instructionLabel:SetFont("DermaDefault")
     instructionLabel:SetText("Clique sur la poubelle de la bonne couleur pour y jeter le déchet !")
     instructionLabel:SetContentAlignment(5)
     
-    -- Les 5 poubelles en bas
+    -- Les 5 poubelles en bas (bien centrées)
     local bins = {}
+    local binWidth = 150
+    local binSpacing = 170
+    local totalBinsWidth = (binWidth * 5) + (binSpacing - binWidth) * 4
+    local startX = (930 - totalBinsWidth) / 2
+    
     for i = 1, 5 do
         local bin = vgui.Create("DButton", gamePanel)
-        bin:SetSize(150, 100)
-        bin:SetPos(20 + (i-1) * 175, 280)
+        bin:SetSize(binWidth, 100)
+        bin:SetPos(startX + (i-1) * binSpacing, 330)
         bin:SetText("")
         bin.binType = i
         
@@ -105,7 +122,7 @@ net.Receive("OpenRecyclerMinigame", function()
                 SpawnNextTrash()
             end
             
-            scoreLabel:SetText("Score: " .. score .. " | Déchets: " .. currentTrash .. "/" .. totalTrash)
+            trashCounter:SetText("Déchets: " .. currentTrash .. "/" .. totalTrash)
         end
         
         bins[i] = bin
@@ -125,32 +142,35 @@ net.Receive("OpenRecyclerMinigame", function()
                     -- Envoyer le résultat au serveur
                     net.Start("RecyclerMinigameResult")
                     net.WriteEntity(recycler)
-                    net.WriteBool(finalScore >= 50) -- Success si score >= 50
+                    net.WriteBool(finalScore >= 50)
                     net.WriteInt(finalScore, 16)
                     net.SendToServer()
                     
                     -- Message final
-                    chat.AddText(Color(0, 255, 0), "[Recycleur] ", Color(255, 255, 255), "Mini-jeu terminé ! Score final: " .. finalScore)
+                    chat.AddText(Color(0, 255, 0), "[Recycleur] ", Color(255, 255, 255), "Mini-jeu terminé ! Score: " .. finalScore)
                 end
             end)
             return
         end
         
-        -- Créer un nouveau déchet aléatoire (maintenant de 1 à 5)
+        -- Créer un nouveau déchet aléatoire
         local trashType = math.random(1, 5)
         local trash = vgui.Create("DPanel", gamePanel)
         trash:SetSize(80, 80)
-        trash:SetPos(425, 100)
+        trash:SetPos(425, 120)
         trash.trashType = trashType
         
+        -- Forcer le panel au premier plan
+        trash:MoveToFront()
+        trash:SetZPos(1000)
+        
         trash.Paint = function(self, w, h)
-            -- Ombre
-            draw.RoundedBox(40, 5, 5, w, h, Color(0, 0, 0, 100))
+            -- Ne pas dessiner d'ombre grise
             
-            -- Déchet
+            -- Déchet (cercle coloré)
             draw.RoundedBox(40, 0, 0, w, h, TrashTypes[trashType].color)
             
-            -- Bordure
+            -- Bordure blanche
             draw.RoundedBox(40, 2, 2, w-4, h-4, Color(255, 255, 255, 30))
             
             -- Texte du type
@@ -159,7 +179,7 @@ net.Receive("OpenRecyclerMinigame", function()
         
         currentTrashPanel = trash
         
-        scoreLabel:SetText("Score: " .. score .. " | Déchets: " .. currentTrash .. "/" .. totalTrash)
+        trashCounter:SetText("Déchets: " .. currentTrash .. "/" .. totalTrash)
         
         -- Animation d'apparition
         trash:SetAlpha(0)
@@ -171,7 +191,7 @@ net.Receive("OpenRecyclerMinigame", function()
     -- Bouton quitter
     local quitBtn = vgui.Create("DButton", frame)
     quitBtn:SetSize(100, 30)
-    quitBtn:SetPos(830, 520)
+    quitBtn:SetPos(830, 530)
     quitBtn:SetText("Quitter")
     quitBtn.DoClick = function()
         frame:Close()
