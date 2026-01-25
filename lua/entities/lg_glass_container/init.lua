@@ -3,8 +3,8 @@ AddCSLuaFile("shared.lua")
 include("shared.lua")
 
 function ENT:Initialize()
-    self:SetModel("models/props_junk/garbage_bag001a.mdl")
-    
+    self:SetModel("models/props_junk/PlasticCrate01a.mdl")
+    self:SetSkin(3)
     self:PhysicsInit(SOLID_VPHYSICS)
     self:SetMoveType(MOVETYPE_VPHYSICS)
     self:SetSolid(SOLID_VPHYSICS)
