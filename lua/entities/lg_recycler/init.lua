@@ -99,11 +99,11 @@ net.Receive("RecyclerSpawnBac", function(len, ply)
     if not IsValid(recycler) or recycler:GetClass() ~= "lg_recycler" then return end
     
     local bacEntities = {
-        [1] = "lg_bac_plastique",
-        [2] = "lg_bac_metal",
-        [3] = "lg_bac_papier",
-        [4] = "lg_bac_organique",
-        [5] = "lg_bac_verre"
+        [1] = "lg_plastic_container",
+        [2] = "lg_metal_container",
+        [3] = "lg_paper_container",
+        [4] = "lg_organic_container",
+        [5] = "lg_glass_container"
     }
     
     local trashNames = {
@@ -117,7 +117,7 @@ net.Receive("RecyclerSpawnBac", function(len, ply)
     ply:ChatPrint("[Recycleur] Un bac de " .. trashNames[trashType] .. " a été généré !")
     
     -- PLUS TARD: Quand tu auras créé les entités de bacs, décommente ce code:
-    --[[
+ 
     local bacClass = bacEntities[trashType]
     local bac = ents.Create(bacClass)
     
@@ -130,7 +130,7 @@ net.Receive("RecyclerSpawnBac", function(len, ply)
         
         ply:ChatPrint("[Recycleur] Bac de " .. trashNames[trashType] .. " créé !")
     end
-    --]]
+
 end)
 
 

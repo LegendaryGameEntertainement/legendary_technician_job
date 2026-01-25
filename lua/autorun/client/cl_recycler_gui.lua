@@ -132,8 +132,6 @@ net.Receive("OpenRecyclerMinigame", function()
                     net.SendToServer()
                     
                     chat.AddText(Color(0, 255, 0), "[Recycleur] ", Color(255, 255, 255), "Vous avez collecté 20 déchets de ", TrashTypes[correctBin].name, " ! Un bac a été généré.")
-                    
-                    -- Note: Le serveur réinitialisera le compteur
                 end
                 
                 currentTrashPanel:MoveTo(self.x + 45, self.y + 20, 0.2, 0, -1, function()
