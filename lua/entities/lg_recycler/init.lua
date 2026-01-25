@@ -2,6 +2,9 @@ AddCSLuaFile("cl_init.lua")
 AddCSLuaFile("shared.lua")
 include("shared.lua")
 
+-- S'assurer que la config existe avec une valeur par défaut
+LEGENDARY_TECHNICIAN = LEGENDARY_TECHNICIAN or {}
+LEGENDARY_TECHNICIAN.TrashRequired = LEGENDARY_TECHNICIAN.TrashRequired or 20
 
 function ENT:Initialize()
     self:SetModel("models/props_c17/furniturefridge001a.mdl")
@@ -29,7 +32,6 @@ function ENT:Initialize()
     print("[RECYCLEUR] Initialisé !")
 end
 
-
 function ENT:Use(activator, caller)
     if not IsValid(activator) or not activator:IsPlayer() then return end
     
@@ -44,7 +46,6 @@ function ENT:Use(activator, caller)
         activator:ChatPrint("Le recycleur est vide ! Ajoutez des sacs poubelles (pose-les à côté).")
     end
 end
-
 
 function ENT:Think()
     -- Chercher les sacs poubelles à proximité
@@ -73,7 +74,6 @@ function ENT:Think()
     return true
 end
 
-
 function ENT:SpawnFunction(ply, tr, ClassName)
     if not tr.Hit then return end
     
@@ -85,13 +85,10 @@ function ENT:SpawnFunction(ply, tr, ClassName)
     return ent
 end
 
-
 util.AddNetworkString("OpenRecyclerMinigame")
 util.AddNetworkString("RecyclerMinigameResult")
 util.AddNetworkString("RecyclerSpawnBac")
 
-
--- Recevoir la demande de spawn de bac
 net.Receive("RecyclerSpawnBac", function(len, ply)
     local recycler = net.ReadEntity()
     local trashType = net.ReadInt(8)
@@ -114,10 +111,21 @@ net.Receive("RecyclerSpawnBac", function(len, ply)
         [5] = "Verre"
     }
     
+    -- Réinitialiser le compteur correspondant après avoir généré le bac
+    if trashType == 1 then
+        recycler:SetPlastiqueCount(0)
+    elseif trashType == 2 then
+        recycler:SetMetalCount(0)
+    elseif trashType == 3 then
+        recycler:SetPapierCount(0)
+    elseif trashType == 4 then
+        recycler:SetOrganiqueCount(0)
+    elseif trashType == 5 then
+        recycler:SetVerreCount(0)
+    end
+    
     ply:ChatPrint("[Recycleur] Un bac de " .. trashNames[trashType] .. " a été généré !")
     
-    -- PLUS TARD: Quand tu auras créé les entités de bacs, décommente ce code:
- 
     local bacClass = bacEntities[trashType]
     local bac = ents.Create(bacClass)
     
@@ -130,9 +138,7 @@ net.Receive("RecyclerSpawnBac", function(len, ply)
         
         ply:ChatPrint("[Recycleur] Bac de " .. trashNames[trashType] .. " créé !")
     end
-
 end)
-
 
 net.Receive("RecyclerMinigameResult", function(len, ply)
     local recycler = net.ReadEntity()
@@ -142,12 +148,13 @@ net.Receive("RecyclerMinigameResult", function(len, ply)
     
     if not IsValid(recycler) or recycler:GetClass() ~= "lg_recycler" then return end
     
-    -- Ajouter les déchets triés aux compteurs persistants
     recycler:SetPlastiqueCount(recycler:GetPlastiqueCount() + sortedTrash[1])
     recycler:SetMetalCount(recycler:GetMetalCount() + sortedTrash[2])
     recycler:SetPapierCount(recycler:GetPapierCount() + sortedTrash[3])
     recycler:SetOrganiqueCount(recycler:GetOrganiqueCount() + sortedTrash[4])
     recycler:SetVerreCount(recycler:GetVerreCount() + sortedTrash[5])
+    
+    local required = LEGENDARY_TECHNICIAN.TrashRequired or 20
     
     if success then
         local bagsUsed = math.min(recycler:GetTrashBags(), 1)
@@ -163,11 +170,11 @@ net.Receive("RecyclerMinigameResult", function(len, ply)
         ply:ChatPrint("Verre: " .. sortedTrash[5])
         
         ply:ChatPrint("=== Total stocké dans le recycleur ===")
-        ply:ChatPrint("Plastique: " .. recycler:GetPlastiqueCount() .. "/20")
-        ply:ChatPrint("Métal: " .. recycler:GetMetalCount() .. "/20")
-        ply:ChatPrint("Papier: " .. recycler:GetPapierCount() .. "/20")
-        ply:ChatPrint("Organique: " .. recycler:GetOrganiqueCount() .. "/20")
-        ply:ChatPrint("Verre: " .. recycler:GetVerreCount() .. "/20")
+        ply:ChatPrint("Plastique: " .. recycler:GetPlastiqueCount() .. "/" .. required)
+        ply:ChatPrint("Métal: " .. recycler:GetMetalCount() .. "/" .. required)
+        ply:ChatPrint("Papier: " .. recycler:GetPapierCount() .. "/" .. required)
+        ply:ChatPrint("Organique: " .. recycler:GetOrganiqueCount() .. "/" .. required)
+        ply:ChatPrint("Verre: " .. recycler:GetVerreCount() .. "/" .. required)
     else
         ply:ChatPrint("Tri échoué... Réessaye !")
     end

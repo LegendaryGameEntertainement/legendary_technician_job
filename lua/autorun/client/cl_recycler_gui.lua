@@ -1,3 +1,5 @@
+LEGENDARY_TECHNICIAN = LEGENDARY_TECHNICIAN or {}
+
 -- Types de déchets avec leurs couleurs
 local TrashTypes = {
     {name = "Plastique", color = Color(255, 255, 0), bin = 1, entityClass = "lg_bac_plastique"},
@@ -31,7 +33,6 @@ net.Receive("OpenRecyclerMinigame", function()
     local currentTrashPanel = nil
     local score = 0
     
-    -- Récupérer les compteurs actuels du recycleur
     local sortedTrash = {
         [1] = 0,
         [2] = 0,
@@ -75,7 +76,6 @@ net.Receive("OpenRecyclerMinigame", function()
     local totalBinsWidth = (binWidth * 5) + (binSpacing - binWidth) * 4
     local startX = (930 - totalBinsWidth) / 2
     
-    -- Fonctions pour obtenir les compteurs actuels
     local function GetCurrentCount(trashType)
         if not IsValid(recycler) then return 0 end
         
@@ -107,9 +107,10 @@ net.Receive("OpenRecyclerMinigame", function()
             draw.RoundedBox(8, 2, 2, w-4, h-4, Color(math.max(col.r - 40, 0), math.max(col.g - 40, 0), math.max(col.b - 40, 0)))
             draw.SimpleText(TrashTypes[i].name, "DermaLarge", w/2, h/2 - 10, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
             
-            -- Afficher le compteur total (recycleur + cette partie)
+            -- Utiliser la config au lieu de 20 en dur
             local currentTotal = GetCurrentCount(i) + sortedTrash[i]
-            draw.SimpleText(currentTotal .. "/20", "DermaDefault", w/2, h/2 + 15, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+            local required = LEGENDARY_TECHNICIAN.TrashRequired or 20
+            draw.SimpleText(currentTotal .. "/" .. required, "DermaDefault", w/2, h/2 + 15, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
         end
         
         bin.DoClick = function(self)
@@ -123,15 +124,17 @@ net.Receive("OpenRecyclerMinigame", function()
                 
                 sortedTrash[correctBin] = sortedTrash[correctBin] + 1
                 
-                -- Vérifier si on atteint 20 avec le total (recycleur + cette partie)
+                -- Utiliser la config
+                local required = LEGENDARY_TECHNICIAN.TrashRequired or 20
                 local totalCount = GetCurrentCount(correctBin) + sortedTrash[correctBin]
-                if totalCount >= 20 then
+                
+                if totalCount >= required then
                     net.Start("RecyclerSpawnBac")
                     net.WriteEntity(recycler)
                     net.WriteInt(correctBin, 8)
                     net.SendToServer()
                     
-                    chat.AddText(Color(0, 255, 0), "[Recycleur] ", Color(255, 255, 255), "Vous avez collecté 20 déchets de ", TrashTypes[correctBin].name, " ! Un bac a été généré.")
+                    chat.AddText(Color(0, 255, 0), "[Recycleur] ", Color(255, 255, 255), "Vous avez collecté " .. required .. " déchets de ", TrashTypes[correctBin].name, " ! Un bac a été généré.")
                 end
                 
                 currentTrashPanel:MoveTo(self.x + 45, self.y + 20, 0.2, 0, -1, function()
