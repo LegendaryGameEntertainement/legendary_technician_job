@@ -18,22 +18,18 @@ end
 function ENT:Use(activator, caller)
     if not IsValid(activator) or not activator:IsPlayer() then return end
     
-    -- Si le joueur ne porte rien, il ramasse le sac
     if not activator:IsPlayerHolding() then
         activator:PickupObject(self)
-    -- Si le joueur porte déjà le sac, il le lâche
     else
         activator:DropObject()
     end
 end
 
 function ENT:OnPlayerPickup(ply)
-    -- Appelé quand le joueur ramasse l'entité
     ply:SetNWEntity("CarryingTrashBag", self)
 end
 
 function ENT:OnPlayerDrop(ply)
-    -- Appelé quand le joueur lâche l'entité
     ply:SetNWEntity("CarryingTrashBag", NULL)
 end
 
