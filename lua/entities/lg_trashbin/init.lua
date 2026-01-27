@@ -32,8 +32,9 @@ function ENT:Use(activator, caller)
     
     -- Vérifier si le joueur a le bon job
     if not self:IsCorrectJob(activator) then
+        local jobName = (activator.getDarkRPVar and activator:getDarkRPVar("job")) or "N/A"
         activator:ChatPrint("[Technicien] Vous devez être Technicien de surface pour vider les poubelles !")
-        print("[POUBELLE] " .. activator:Nick() .. " REFUSÉ - Job actuel: " .. tostring(activator:getDarkRPVar and activator:getDarkRPVar("job") or "N/A") .. " (Team: " .. tostring(activator:Team()) .. ")")
+        print("[POUBELLE] " .. activator:Nick() .. " REFUSÉ - Job actuel: " .. tostring(jobName) .. " (Team: " .. tostring(activator:Team()) .. ")")
         return
     end
     
@@ -63,6 +64,7 @@ function ENT:Use(activator, caller)
     activator:ChatPrint("[Technicien] Sac poubelle récupéré !")
     print("[POUBELLE] " .. activator:Nick() .. " a vidé la poubelle " .. tostring(self))
 end
+
 
 function ENT:IsCorrectJob(ply)
     -- Vérifier si DarkRP est installé
