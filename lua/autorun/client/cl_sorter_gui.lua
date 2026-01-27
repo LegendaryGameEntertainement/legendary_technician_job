@@ -1,4 +1,4 @@
-LEGENDARY_TECHNICIAN = LEGENDARY_TECHNICIAN or {}
+LEGENDARY_FLOOR_TECHNICIAN = LEGENDARY_FLOOR_TECHNICIAN or {}
 
 -- Types de déchets avec leurs couleurs
 local TrashTypes = {
@@ -109,7 +109,7 @@ net.Receive("OpenSorterMinigame", function()
             
             -- Utiliser la config au lieu de 20 en dur
             local currentTotal = GetCurrentCount(i) + sortedTrash[i]
-            local required = LEGENDARY_TECHNICIAN.TrashRequired or 20
+            local required = LEGENDARY_FLOOR_TECHNICIAN.TrashRequired or 20
             draw.SimpleText(currentTotal .. "/" .. required, "DermaDefault", w/2, h/2 + 15, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
         end
         
@@ -125,7 +125,7 @@ net.Receive("OpenSorterMinigame", function()
                 sortedTrash[correctBin] = sortedTrash[correctBin] + 1
                 
                 -- Utiliser la config
-                local required = LEGENDARY_TECHNICIAN.TrashRequired or 20
+                local required = LEGENDARY_FLOOR_TECHNICIAN.TrashRequired or 20
                 local totalCount = GetCurrentCount(correctBin) + sortedTrash[correctBin]
                 
                 if totalCount >= required then
