@@ -21,29 +21,26 @@ function ENT:Initialize()
     end
     
     self:SetTrashBags(0)
-    
-    -- Initialiser les compteurs de déchets
     self:SetPlastiqueCount(0)
     self:SetMetalCount(0)
     self:SetPapierCount(0)
     self:SetOrganiqueCount(0)
     self:SetVerreCount(0)
     
-    print("[RECYCLEUR] Initialisé !")
 end
 
 function ENT:Use(activator, caller)
     if not IsValid(activator) or not activator:IsPlayer() then return end
     
-    print("[RECYCLEUR] Utilisation par " .. activator:Nick())
+    print("[TRIEUR] Utilisation par " .. activator:Nick())
     
     -- Ouvrir le mini-jeu de tri
     if self:GetTrashBags() > 0 then
-        net.Start("OpenRecyclerMinigame")
+        net.Start("OpenSorterMinigame")
         net.WriteEntity(self)
         net.Send(activator)
     else
-        activator:ChatPrint("Le recycleur est vide ! Ajoutez des sacs poubelles (pose-les à côté).")
+        activator:ChatPrint("Le trieur est vide ! Ajoutez des sacs poubelles (pose-les à côté).")
     end
 end
 
@@ -53,7 +50,7 @@ function ENT:Think()
     
     for _, ent in pairs(nearbyEnts) do
         if IsValid(ent) and ent:GetClass() == "lg_trashbag" and ent != self then
-            print("[RECYCLEUR] Sac détecté ! Classe: " .. ent:GetClass())
+            print("[TRIEUR] Sac détecté ! Classe: " .. ent:GetClass())
             
             -- Effet visuel/sonore
             local effectdata = EffectData()
@@ -66,7 +63,7 @@ function ENT:Think()
             ent:Remove()
             self:SetTrashBags(self:GetTrashBags() + 1)
             
-            print("[RECYCLEUR] Sac absorbé ! Total: " .. self:GetTrashBags())
+            print("[TRIEUR] Sac absorbé ! Total: " .. self:GetTrashBags())
         end
     end
     
@@ -85,15 +82,15 @@ function ENT:SpawnFunction(ply, tr, ClassName)
     return ent
 end
 
-util.AddNetworkString("OpenRecyclerMinigame")
-util.AddNetworkString("RecyclerMinigameResult")
-util.AddNetworkString("RecyclerSpawnBac")
+util.AddNetworkString("OpenSorterMinigame")
+util.AddNetworkString("SorterMinigameResult")
+util.AddNetworkString("SorterSpawnBac")
 
-net.Receive("RecyclerSpawnBac", function(len, ply)
-    local recycler = net.ReadEntity()
+net.Receive("SorterSpawnBac", function(len, ply)
+    local sorter = net.ReadEntity()
     local trashType = net.ReadInt(8)
     
-    if not IsValid(recycler) or recycler:GetClass() ~= "lg_recycler" then return end
+    if not IsValid(sorter) or sorter:GetClass() ~= "lg_sorter" then return end
     
     local bacEntities = {
         [1] = "lg_plastic_container",
@@ -113,69 +110,51 @@ net.Receive("RecyclerSpawnBac", function(len, ply)
     
     -- Réinitialiser le compteur correspondant après avoir généré le bac
     if trashType == 1 then
-        recycler:SetPlastiqueCount(0)
+        sorter:SetPlastiqueCount(0)
     elseif trashType == 2 then
-        recycler:SetMetalCount(0)
+        sorter:SetMetalCount(0)
     elseif trashType == 3 then
-        recycler:SetPapierCount(0)
+        sorter:SetPapierCount(0)
     elseif trashType == 4 then
-        recycler:SetOrganiqueCount(0)
+        sorter:SetOrganiqueCount(0)
     elseif trashType == 5 then
-        recycler:SetVerreCount(0)
+        sorter:SetVerreCount(0)
     end
     
-    ply:ChatPrint("[Recycleur] Un bac de " .. trashNames[trashType] .. " a été généré !")
+    ply:ChatPrint("[Trieur] Un bac de " .. trashNames[trashType] .. " a été généré !")
     
     local bacClass = bacEntities[trashType]
     local bac = ents.Create(bacClass)
     
     if IsValid(bac) then
-        local spawnPos = recycler:GetPos() + recycler:GetForward() * 80 + recycler:GetRight() * (math.random(-30, 30))
+        local spawnPos = sorter:GetPos() + sorter:GetForward() * 80 + sorter:GetRight() * (math.random(-30, 30))
         bac:SetPos(spawnPos)
-        bac:SetAngles(recycler:GetAngles())
+        bac:SetAngles(sorter:GetAngles())
         bac:Spawn()
         bac:Activate()
         
-        ply:ChatPrint("[Recycleur] Bac de " .. trashNames[trashType] .. " créé !")
+        ply:ChatPrint("[Trieur] Bac de " .. trashNames[trashType] .. " créé !")
     end
 end)
 
-net.Receive("RecyclerMinigameResult", function(len, ply)
-    local recycler = net.ReadEntity()
+net.Receive("SorterMinigameResult", function(len, ply)
+    local sorter = net.ReadEntity()
     local success = net.ReadBool()
     local score = net.ReadInt(16)
     local sortedTrash = net.ReadTable()
     
-    if not IsValid(recycler) or recycler:GetClass() ~= "lg_recycler" then return end
+    if not IsValid(sorter) or sorter:GetClass() ~= "lg_sorter" then return end
     
-    recycler:SetPlastiqueCount(recycler:GetPlastiqueCount() + sortedTrash[1])
-    recycler:SetMetalCount(recycler:GetMetalCount() + sortedTrash[2])
-    recycler:SetPapierCount(recycler:GetPapierCount() + sortedTrash[3])
-    recycler:SetOrganiqueCount(recycler:GetOrganiqueCount() + sortedTrash[4])
-    recycler:SetVerreCount(recycler:GetVerreCount() + sortedTrash[5])
+    sorter:SetPlastiqueCount(sorter:GetPlastiqueCount() + sortedTrash[1])
+    sorter:SetMetalCount(sorter:GetMetalCount() + sortedTrash[2])
+    sorter:SetPapierCount(sorter:GetPapierCount() + sortedTrash[3])
+    sorter:SetOrganiqueCount(sorter:GetOrganiqueCount() + sortedTrash[4])
+    sorter:SetVerreCount(sorter:GetVerreCount() + sortedTrash[5])
     
     local required = LEGENDARY_TECHNICIAN.TrashRequired or 20
     
     if success then
-        local bagsUsed = math.min(recycler:GetTrashBags(), 1)
-        recycler:SetTrashBags(recycler:GetTrashBags() - bagsUsed)
-        
-        ply:ChatPrint("Tri réussi ! Score: " .. score)
-        
-        ply:ChatPrint("=== Statistiques de tri (cette partie) ===")
-        ply:ChatPrint("Plastique: " .. sortedTrash[1])
-        ply:ChatPrint("Métal: " .. sortedTrash[2])
-        ply:ChatPrint("Papier: " .. sortedTrash[3])
-        ply:ChatPrint("Organique: " .. sortedTrash[4])
-        ply:ChatPrint("Verre: " .. sortedTrash[5])
-        
-        ply:ChatPrint("=== Total stocké dans le recycleur ===")
-        ply:ChatPrint("Plastique: " .. recycler:GetPlastiqueCount() .. "/" .. required)
-        ply:ChatPrint("Métal: " .. recycler:GetMetalCount() .. "/" .. required)
-        ply:ChatPrint("Papier: " .. recycler:GetPapierCount() .. "/" .. required)
-        ply:ChatPrint("Organique: " .. recycler:GetOrganiqueCount() .. "/" .. required)
-        ply:ChatPrint("Verre: " .. recycler:GetVerreCount() .. "/" .. required)
-    else
-        ply:ChatPrint("Tri échoué... Réessaye !")
+        local bagsUsed = math.min(sorter:GetTrashBags(), 1)
+        sorter:SetTrashBags(sorter:GetTrashBags() - bagsUsed)
     end
 end)

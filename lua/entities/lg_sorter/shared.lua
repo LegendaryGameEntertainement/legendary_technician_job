@@ -1,6 +1,6 @@
 ENT.Type = "anim"
 ENT.Base = "base_gmodentity"
-ENT.PrintName = "Recycleur"
+ENT.PrintName = "Trieur de Déchets"
 ENT.Author = "Ton Nom"
 ENT.Category = "SCP RP - Technician"
 ENT.Spawnable = true

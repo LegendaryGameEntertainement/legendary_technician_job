@@ -17,9 +17,9 @@ local BinColors = {
     Color(0, 255, 0)
 }
 
-net.Receive("OpenRecyclerMinigame", function()
-    local recycler = net.ReadEntity()
-    if not IsValid(recycler) then return end
+net.Receive("OpenSorterMinigame", function()
+    local sorter = net.ReadEntity()
+    if not IsValid(sorter) then return end
     
     local frame = vgui.Create("DFrame")
     frame:SetSize(950, 600)
@@ -77,13 +77,13 @@ net.Receive("OpenRecyclerMinigame", function()
     local startX = (930 - totalBinsWidth) / 2
     
     local function GetCurrentCount(trashType)
-        if not IsValid(recycler) then return 0 end
-        
-        if trashType == 1 then return recycler:GetPlastiqueCount()
-        elseif trashType == 2 then return recycler:GetMetalCount()
-        elseif trashType == 3 then return recycler:GetPapierCount()
-        elseif trashType == 4 then return recycler:GetOrganiqueCount()
-        elseif trashType == 5 then return recycler:GetVerreCount()
+        if not IsValid(sorter) then return 0 end
+
+        if trashType == 1 then return sorter:GetPlastiqueCount()
+        elseif trashType == 2 then return sorter:GetMetalCount()
+        elseif trashType == 3 then return sorter:GetPapierCount()
+        elseif trashType == 4 then return sorter:GetOrganiqueCount()
+        elseif trashType == 5 then return sorter:GetVerreCount()
         end
         
         return 0
@@ -129,12 +129,12 @@ net.Receive("OpenRecyclerMinigame", function()
                 local totalCount = GetCurrentCount(correctBin) + sortedTrash[correctBin]
                 
                 if totalCount >= required then
-                    net.Start("RecyclerSpawnBac")
-                    net.WriteEntity(recycler)
+                    net.Start("SorterSpawnBac")
+                    net.WriteEntity(sorter)
                     net.WriteInt(correctBin, 8)
                     net.SendToServer()
                     
-                    chat.AddText(Color(0, 255, 0), "[Recycleur] ", Color(255, 255, 255), "Vous avez collecté " .. required .. " déchets de ", TrashTypes[correctBin].name, " ! Un bac a été généré.")
+                    chat.AddText(Color(0, 255, 0), "[Trieur] ", Color(255, 255, 255), "Vous avez collecté " .. required .. " déchets de ", TrashTypes[correctBin].name, " ! Un bac a été généré.")
                 end
                 
                 currentTrashPanel:MoveTo(self.x + 45, self.y + 20, 0.2, 0, -1, function()
@@ -165,15 +165,15 @@ net.Receive("OpenRecyclerMinigame", function()
                 if IsValid(frame) then
                     local finalScore = score
                     frame:Close()
-                    
-                    net.Start("RecyclerMinigameResult")
-                    net.WriteEntity(recycler)
+
+                    net.Start("SorterMinigameResult")
+                    net.WriteEntity(sorter)
                     net.WriteBool(finalScore >= 50)
                     net.WriteInt(finalScore, 16)
                     net.WriteTable(sortedTrash)
                     net.SendToServer()
                     
-                    chat.AddText(Color(0, 255, 0), "[Recycleur] ", Color(255, 255, 255), "Mini-jeu terminé ! Score: " .. finalScore)
+                    chat.AddText(Color(0, 255, 0), "[Trieur] ", Color(255, 255, 255), "Mini-jeu terminé ! Score: " .. finalScore)
                 end
             end)
             return
