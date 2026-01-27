@@ -3,8 +3,8 @@ AddCSLuaFile("shared.lua")
 include("shared.lua")
 
 -- S'assurer que la config existe avec une valeur par défaut
-LEGENDARY_TECHNICIAN = LEGENDARY_TECHNICIAN or {}
-LEGENDARY_TECHNICIAN.TrashRequired = LEGENDARY_TECHNICIAN.TrashRequired or 20
+LEGENDARY_FLOOR_TECHNICIAN = LEGENDARY_FLOOR_TECHNICIAN or {}
+LEGENDARY_FLOOR_TECHNICIAN.TrashRequired = LEGENDARY_FLOOR_TECHNICIAN.TrashRequired or 20
 
 function ENT:Initialize()
     self:SetModel("models/props_c17/furniturefridge001a.mdl")
@@ -151,7 +151,7 @@ net.Receive("SorterMinigameResult", function(len, ply)
     sorter:SetOrganiqueCount(sorter:GetOrganiqueCount() + sortedTrash[4])
     sorter:SetVerreCount(sorter:GetVerreCount() + sortedTrash[5])
     
-    local required = LEGENDARY_TECHNICIAN.TrashRequired or 20
+    local required = LEGENDARY_FLOOR_TECHNICIAN.TrashRequired or 20
     
     if success then
         local bagsUsed = math.min(sorter:GetTrashBags(), 1)
