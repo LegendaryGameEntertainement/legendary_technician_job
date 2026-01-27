@@ -124,3 +124,26 @@ net.Receive("LG_RemoveTrashBinMarker", function()
         print("[POUBELLE CLIENT] Marqueur retiré pour poubelle " .. idx)
     end
 end)
+
+-- Nettoyer les marqueurs quand on change de job
+local lastTeam = nil
+
+hook.Add("Think", "LG_CleanTrashMarkersOnJobChange", function()
+    local ply = LocalPlayer()
+    if not IsValid(ply) then return end
+    
+    local currentTeam = ply:Team()
+    
+    -- Si le team a changé
+    if lastTeam and lastTeam ~= currentTeam then
+        print("[POUBELLE CLIENT] Changement de job détecté, nettoyage des marqueurs")
+        
+        -- Vider tous les marqueurs
+        for idx, _ in pairs(LG_TrashBinMarkers) do
+            hook.Remove("HUDPaint", "LG_TrashBinWaypoint_" .. idx)
+        end
+        LG_TrashBinMarkers = {}
+    end
+    
+    lastTeam = currentTeam
+end)
