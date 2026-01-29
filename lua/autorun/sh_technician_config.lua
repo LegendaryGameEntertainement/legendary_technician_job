@@ -4,6 +4,11 @@ LEGENDARY_FLOOR_TECHNICIAN = LEGENDARY_FLOOR_TECHNICIAN or {}
 LEGENDARY_FLOOR_TECHNICIAN.FloorTechnicianTeam = "Technicien de Surface"
 LEGENDARY_TECHNICIAN.ElectricianTeam = "Technicien"
 
+
+
+///////////////////////////////////////////////////////////////////////////////
+-- Configuration récoltes des déchets
+////////////////////////////////////////////////////////////////////////////////
 LEGENDARY_FLOOR_TECHNICIAN.TrashRequired = 10 -- Nombre de déchets nécessaires pour générer un bac
 LEGENDARY_FLOOR_TECHNICIAN.TrashBinFillTime = 10 -- Temps en secondes entre chaque vérification de remplissage 
 LEGENDARY_FLOOR_TECHNICIAN.TrashBinFillChance = 0.3 -- Probabilité qu'une poubelle se remplisse à chaque vérification (30%)
@@ -11,7 +16,11 @@ LEGENDARY_FLOOR_TECHNICIAN.MaxFullTrashBins = 10 -- Nombre maximum de poubelles 
 LEGENDARY_FLOOR_TECHNICIAN.NotificationDuration = 60 -- Durée d'affichage du popup en secondes
 LEGENDARY_FLOOR_TECHNICIAN.TrashBinMarkerDistance = 2000 -- Distance maximale d'affichage des marqueurs (en unités source)
 
+
+
+///////////////////////////////////////////////////////////////////////////////
 -- Configuration des pannes électriques
+////////////////////////////////////////////////////////////////////////////////
 LEGENDARY_TECHNICIAN.Breakdown = {
     -- Intervalle min et max entre chaque panne (en secondes)
     MinInterval = 5,  
@@ -27,7 +36,11 @@ LEGENDARY_TECHNICIAN.Breakdown = {
     MarkerDistance = 2000,
 }
 
+
+
+///////////////////////////////////////////////////////////////////////////////
 -- Configuration des caméras de surveillance
+////////////////////////////////////////////////////////////////////////////////
 LEGENDARY_TECHNICIAN.Camera = {
     -- Classe de l'entité caméra
     EntityClass = "cam",
