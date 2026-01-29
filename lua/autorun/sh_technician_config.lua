@@ -21,16 +21,44 @@ LEGENDARY_TECHNICIAN.Breakdown = {
     MinigameTime = 60,  -- 60 secondes pour compléter le mini-jeu
     
     -- Nombre de fils à connecter
-    WireCount = 6,
+    WireCount = 6, -- max 8
     
     -- Distance du marqueur
     MarkerDistance = 2000,
 }
 
--- Liste globale des entités pouvant tomber en panne
-LEGENDARY_TECHNICIAN.BreakdownEntities = LEGENDARY_TECHNICIAN.BreakdownEntities or {}
+-- Configuration des caméras de surveillance
+LEGENDARY_TECHNICIAN.Camera = {
+    -- Classe de l'entité caméra
+    EntityClass = "cam",
+    
+    -- Points de vie de la caméra
+    MaxHealth = 100,
+    
+    -- La caméra se casse si les PV tombent à 0
+    BreakOnZeroHealth = true,
+    
+    -- Distance du marqueur HUD
+    MarkerDistance = 2000,
+    
+    -- Mini-jeu de calibration
+    Minigame = {
+        -- Durée du mini-jeu (en secondes)
+        TimeLimit = 60,
+        
+        -- Nombre de calibrations nécessaires
+        CalibrationsNeeded = 3,
+        
+        -- Vitesse de rotation (plus élevé = plus difficile)
+        RotationSpeed = 3,
+        
+        -- Taille de la zone cible (0.1 = 10% du cercle)
+        TargetZoneSize = 0.15,
+    },
+}
 
--- Timer global pour les pannes
-LEGENDARY_TECHNICIAN.NextBreakdownTime = 0
+
+LEGENDARY_TECHNICIAN.BreakdownEntities = LEGENDARY_TECHNICIAN.BreakdownEntities or {} -- Liste globale des entités pouvant tomber en panne
+LEGENDARY_TECHNICIAN.NextBreakdownTime = 0 -- Timer global pour les pannes
 
 print("[Legendary Technician] Configuration chargée !")
