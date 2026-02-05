@@ -71,6 +71,15 @@ LEGENDARY_TECHNICIAN.Camera = {
 }
 
 
+
+///////////////////////////////////////////////////////////////////////////////
+-- Configuration ventilations
+////////////////////////////////////////////////////////////////////////////////
+LEGENDARY_TECHNICIAN.VentilationCanBeBlocked = true      -- Activer / désactiver la mécanique d’obstruction
+LEGENDARY_TECHNICIAN.VentilationBlockChance  = 0.2        -- Chance qu’une ventilo spawn déjà obstruée
+LEGENDARY_TECHNICIAN.VentilationBlockInterval = 5       -- Temps (sec) entre deux tentatives d’obstruction auto
+
+
 LEGENDARY_TECHNICIAN.BreakdownEntities = LEGENDARY_TECHNICIAN.BreakdownEntities or {} -- Liste globale des entités pouvant tomber en panne
 LEGENDARY_TECHNICIAN.NextBreakdownTime = 0 -- Timer global pour les pannes
 
