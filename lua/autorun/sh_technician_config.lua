@@ -4,7 +4,8 @@ LEGENDARY_FLOOR_TECHNICIAN = LEGENDARY_FLOOR_TECHNICIAN or {}
 LEGENDARY_FLOOR_TECHNICIAN.FloorTechnicianTeam = "Technicien de Surface"
 LEGENDARY_TECHNICIAN.ElectricianTeam = "Technicien"
 
-
+LEGENDARY_TECHNICIAN.BreakdownEntities = LEGENDARY_TECHNICIAN.BreakdownEntities or {} -- Liste globale des entités pouvant tomber en panne
+LEGENDARY_TECHNICIAN.NextBreakdownTime = 0 -- Timer global pour les pannes
 
 ///////////////////////////////////////////////////////////////////////////////
 -- Configuration récoltes des déchets
@@ -80,7 +81,37 @@ LEGENDARY_TECHNICIAN.VentilationBlockChance  = 0.2        -- Chance qu’une ven
 LEGENDARY_TECHNICIAN.VentilationBlockInterval = 5       -- Temps (sec) entre deux tentatives d’obstruction auto
 
 
-LEGENDARY_TECHNICIAN.BreakdownEntities = LEGENDARY_TECHNICIAN.BreakdownEntities or {} -- Liste globale des entités pouvant tomber en panne
-LEGENDARY_TECHNICIAN.NextBreakdownTime = 0 -- Timer global pour les pannes
+///////////////////////////////////////////////////////////////////////////////
+-- Configuration des pannes électriques
+////////////////////////////////////////////////////////////////////////////////
+LEGENDARY_TECHNICIAN = LEGENDARY_TECHNICIAN or {}
+LEGENDARY_TECHNICIAN.LeakConfig = {}
+
+-- Configuration Eau
+LEGENDARY_TECHNICIAN.LeakConfig.Water = {
+    SpawnInterval = 20, -- temps en secondes
+    DamageEnabled = false,
+    DamageAmount = 2,
+    DamageRadius = 150,
+    DamageInterval = 2,
+    GlobalSound = true,
+    RepairTime = 10,
+    ParticleEffect = "waterfall_mist",
+    Sound = "ambient/water/water_spray1.wav"
+}
+
+-- Configuration Gaz
+LEGENDARY_TECHNICIAN.LeakConfig.Gas = {
+    SpawnInterval = 20, -- temps en secondes
+    DamageEnabled = true,
+    DamageAmount = 5,
+    DamageRadius = 200,
+    DamageInterval = 1.5,
+    GlobalSound = true,
+    RepairTime = 15,
+    ParticleEffect = "smoke_exhaust_01",
+    Sound = "ambient/gas/steam2.wav"
+}
+
 
 print("[Legendary Technician] Configuration chargée !")
