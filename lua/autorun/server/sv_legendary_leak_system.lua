@@ -62,6 +62,19 @@ function LEGENDARY_TECHNICIAN.ActivateLeak(id)
             
             for _, ply in ipairs(player.GetAll()) do
                 if ply:GetPos():Distance(leakData.pos) <= config.DamageRadius then
+                    -- Vérifier le masque à gaz pour les fuites de gaz
+                    if leakData.type == "gas" then
+                        -- TODO: Vérifier si le joueur a un masque à gaz équipé
+                        -- if ply:HasGasMask() then
+                        --     continue -- Pas de dégâts si masque à gaz
+                        -- end
+                        
+                        -- Alternative avec inventaire:
+                        -- if ply.Inventory and ply.Inventory:HasItem("gas_mask") and ply.Inventory:IsEquipped("gas_mask") then
+                        --     continue
+                        -- end
+                    end
+                    
                     ply:TakeDamage(config.DamageAmount, game.GetWorld(), game.GetWorld())
                 end
             end
@@ -70,6 +83,7 @@ function LEGENDARY_TECHNICIAN.ActivateLeak(id)
     
     print("[LEGENDARY LEAK] Fuite " .. leakData.type .. " activée (ID: " .. id .. ")")
 end
+
 
 -- Réparer une fuite
 function LEGENDARY_TECHNICIAN.RepairLeak(id, ply)
