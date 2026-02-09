@@ -23,18 +23,6 @@ end
 
 local VentMiniFrame = nil
 
-function DrawCircle(x, y, radius, color)
-    surface.SetDrawColor(color)
-    local circle = {}
-    for i = 0, 360, 5 do
-        local a = math.rad(i)
-        local px, py = x + math.cos(a) * radius, y + math.sin(a) * radius
-        table.insert(circle, {x = px, y = py})
-    end
-    draw.NoTexture()
-    surface.DrawPoly(circle)
-end
-
 local function OpenVentMinigame(vent)
     if not IsValid(vent) then return end
 
@@ -71,19 +59,32 @@ local function OpenVentMinigame(vent)
     canvas:DockMargin(10, 10, 10, 10)
     
     canvas.Paint = function(self, pw, ph)
+        -- Fonction locale pour dessiner les cercles (ne conflicte pas avec cl_camera_system)
+        local function DrawVentCircle(x, y, radius, col)
+            draw.NoTexture()
+            surface.SetDrawColor(col.r or 255, col.g or 255, col.b or 255, col.a or 255)
+            local circle = {}
+            for i = 0, 360, 5 do
+                local a = math.rad(i)
+                local px, py = x + math.cos(a) * radius, y + math.sin(a) * radius
+                table.insert(circle, {x = px, y = py})
+            end
+            surface.DrawPoly(circle)
+        end
+
         -- Fond métal
         draw.RoundedBox(8, 0, 0, pw, ph, Color(80, 80, 80, 255))
         draw.RoundedBox(8, 20, 20, pw - 40, ph - 40, Color(120, 120, 120, 255))
 
-        -- Hélène
+        -- Hélice
         local propX, propY = pw / 2, ph / 2
         local propRadius = math.min(pw, ph) * 0.35
         
         if not propellerRemoved then
-            local propColor = (step == 1 or step == 2) and Color(150, 50, 50) or Color(50, 150, 50)
-            DrawCircle(propX, propY, propRadius, propColor)
+            local propColor = (step == 1 or step == 2) and Color(150, 50, 50, 255) or Color(50, 150, 50, 255)
+            DrawVentCircle(propX, propY, propRadius, propColor)
         else
-            DrawCircle(propX, propY, propRadius, Color(50, 150, 50))
+            DrawVentCircle(propX, propY, propRadius, Color(50, 150, 50, 255))
         end
 
         -- Vis
@@ -92,24 +93,19 @@ local function OpenVentMinigame(vent)
         local screwProgress = screwClicks / totalClicksNeeded
         local screwRotation = screwProgress * 360
 
-        DrawCircle(screwX, screwY, screwRadius, Color(200, 200, 200))
+        DrawVentCircle(screwX, screwY, screwRadius, Color(200, 200, 200, 255))
 
         -- Tête vis rotative
-        surface.SetDrawColor(180, 180, 180)
-        cam.PushModelMatrix(Matrix({
-            {math.cos(math.rad(screwRotation)), -math.sin(math.rad(screwRotation)), 0, screwX},
-            {math.sin(math.rad(screwRotation)),  math.cos(math.rad(screwRotation)), 0, screwY},
-            {0, 0, 1, 0},
-            {0, 0, 0, 1}
-        }))
         draw.NoTexture()
-        surface.DrawCircle(0, 0, screwRadius * 0.6)
-        cam.PopModelMatrix()
-
-        -- Progression
-        draw.RoundedBox(4, pw/2 - 100, ph - 60, 200, 20, Color(50, 50, 50, 200))
-        draw.RoundedBox(4, pw/2 - 100, ph - 60, 200 * screwProgress, 20, Color(100, 200, 100, 255))
-        draw.SimpleText(math.Round(screwProgress * 100) .. "%", "DermaDefault", pw/2, ph - 60, Color(255,255,255), TEXT_ALIGN_CENTER)
+        surface.SetDrawColor(180, 180, 180, 255)
+        local innerRadius = screwRadius * 0.6
+        local innerCircle = {}
+        for i = 0, 360, 5 do
+            local a = math.rad(i + screwRotation)
+            local px, py = screwX + math.cos(a) * innerRadius, screwY + math.sin(a) * innerRadius
+            table.insert(innerCircle, {x = px, y = py})
+        end
+        surface.DrawPoly(innerCircle)
     end
 
     -- Clics

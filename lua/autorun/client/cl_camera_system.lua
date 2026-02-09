@@ -350,8 +350,7 @@ end)
 function surface.DrawCircle(x, y, radius, color)
     local segmentCount = 50
     draw.NoTexture()
-    surface.SetDrawColor(color)
-    
+    surface.SetDrawColor(color.r or 255, color.g or 255, color.b or 255, color.a or 255)
     local circle = {}
     for i = 0, segmentCount do
         local angle = math.rad((i / segmentCount) * 360)
@@ -360,9 +359,9 @@ function surface.DrawCircle(x, y, radius, color)
             y = y + math.sin(angle) * radius
         })
     end
-    
     surface.DrawPoly(circle)
 end
+
 
 
 
